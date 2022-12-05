@@ -3,7 +3,6 @@ import getUserCases from '@salesforce/apex/ServiceCaseQueueService.getUserCases'
 import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
-import { deleteRecord } from 'lightning/uiRecordApi';
 
 
 import CASE_STATUS_FIELD from '@salesforce/schema/Case.Status';
