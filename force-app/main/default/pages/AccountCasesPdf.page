@@ -1,0 +1,12 @@
+<apex:page controller="AccountCasesPdfCtrl" renderAs="pdf">
+    <apex:pageBlock>
+    <apex:pageBlockTable value="{! accountCasesPrevWeek }" var="case">
+        <apex:column value="{! case.Account.Name }"/>
+        <apex:column value="{! case.Account.Owner.Name }"/>
+        <apex:column value="{! case.CaseNumber }"/>
+        <apex:column value="{! case.Status }"/>
+        <apex:column value="{! case.Priority }"/>
+        <apex:column value="{! case.Origin }"/>
+    </apex:pageBlockTable>
+</apex:pageBlock>
+</apex:page>

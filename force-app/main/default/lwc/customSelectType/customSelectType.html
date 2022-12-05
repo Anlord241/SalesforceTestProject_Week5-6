@@ -1,0 +1,12 @@
+<template>
+    <lightning-combobox
+            name="progress"
+            label="Status"
+            value={value}
+            onsave={handleSave}
+            placeholder="Select Progress"
+            options={options}
+            onchange={handleChange} >
+        </lightning-combobox>
+    <p>Selected value is: {value}</p>
+</template>
