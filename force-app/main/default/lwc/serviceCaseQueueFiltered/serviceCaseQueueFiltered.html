@@ -1,20 +1,27 @@
 <template>
-	<lightning-card title="Cases">
-		<lightning-icon size="Large" icon-name="utility:rotate" onclick={refresh} title="refresh"
-			slot="actions"></lightning-icon>
-		<div if:true={isLoaded}>
-			<lightning-datatable 
-            class="cases-table" 
-            onsave={handleSave} 
-            key-field="Id" 
-            data={cases}
-            draft-values={saveDraftValues}
-            hide-checkbox-column columns={columns}>
-			</lightning-datatable>
-		</div>
-		<div if:false={isLoaded}>
-			<lightning-spinner alternative-text="Loading...">
-			</lightning-spinner>
-		</div>
-	</lightning-card>
+  <lightning-card title="Cases">
+    <lightning-icon
+      size="Large"
+      icon-name="utility:rotate"
+      onclick={refreshPage}
+      title="refresh"
+      slot="actions"
+    ></lightning-icon>
+    <div if:true={isLoaded}>
+      <c-custom-types-global
+        class="cases-table"
+		onvalueselect={handleSelection}
+        onsave={handleSave}
+        key-field="Id"
+        data={cases}
+        draft-values={saveDraftValues}
+        hide-checkbox-column
+        columns={columns}
+      >
+      </c-custom-types-global>
+    </div>
+    <div if:false={isLoaded}>
+      <lightning-spinner alternative-text="Loading..."> </lightning-spinner>
+    </div>
+  </lightning-card>
 </template>
