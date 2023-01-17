@@ -7,19 +7,18 @@
       title="refresh"
       slot="actions"
     ></lightning-icon>
-    <div if:true={isLoaded}>
-      <c-custom-types-global
-        class="cases-table"
-		onvalueselect={handleSelection}
-        onsave={handleSave}
-        key-field="Id"
-        data={cases}
-        draft-values={saveDraftValues}
-        hide-checkbox-column
-        columns={columns}
+    <template if:true={isLoaded}>
+      <c-custom-types-datatable
+      key-field="Id"
+      data={data} 
+      columns={columns} 
+      draft-values={draftValues} 
+      onsave={handleSave}
+      oncancel={handleCancel}
+      hide-checkbox-column
       >
-      </c-custom-types-global>
-    </div>
+      </c-custom-types-datatable>
+    </template>
     <div if:false={isLoaded}>
       <lightning-spinner alternative-text="Loading..."> </lightning-spinner>
     </div>

@@ -1,19 +1,19 @@
-import { LightningElement, wire, api, track } from "lwc";
+import { LightningElement, wire, track } from "lwc";
 import getUserCases from "@salesforce/apex/ServiceCaseQueueService.getUserCases";
 import { updateRecord } from "lightning/uiRecordApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { refreshApex } from "@salesforce/apex";
-
 import { getObjectInfo } from "lightning/uiObjectInfoApi";
 import { getPicklistValues } from "lightning/uiObjectInfoApi";
 import CASE_OBJECT from "@salesforce/schema/Case";
-import CASE_STATUS_FIELD from "@salesforce/schema/Case.Status";
+import STATUS_FIELD from "@salesforce/schema/Case.Status";
 import PRIORITY_FIELD from "@salesforce/schema/Case.Priority";
 import ORIGIN_FIELD from "@salesforce/schema/Case.Origin";
 
 const COLUMNS = [
-  {
+ {
     label: "Case Number",
+    editable: true,
     fieldName: "CaseUrl",
     type: "url",
     typeAttributes: {
@@ -22,72 +22,63 @@ const COLUMNS = [
       }
     }
   },
-  { label: "Assignee", fieldName: "Assignee" },
+  { label: "Assignee", fieldName: "Assignee", editable: true },
   {
-    label: "Case Status",
-    fieldName: CASE_STATUS_FIELD.fieldApiName,
-    type: "customPicklist",
+    label: 'Status',
     editable: true,
+    fieldName: STATUS_FIELD.fieldApiName,
+    wrapText: true,
+    type: 'picklistColumnType',
     typeAttributes: {
-      options: { fieldName: "picklistOptions" },
-      value: { fieldName: "Status" },
-      placeholder: "Choose Status"
+      options: { fieldName: 'pickListOptions'},
+      value: { fieldName: STATUS_FIELD.fieldApiName },
+      placeholder: "Choose Status",
+      context: { fieldName: 'Id' }
     }
   },
-  { label: "Priority", fieldName: PRIORITY_FIELD.fieldApiName },
+  { label: "Priority", fieldName: PRIORITY_FIELD.fieldApiName, editable: true },
   { label: "Origin", fieldName: ORIGIN_FIELD.fieldApiName, editable: true }
+
 ];
 
 export default class ServiceCaseQueueFiltered extends LightningElement {
   columns = COLUMNS;
-  @track cases;
-  selectedRecord;
-
-  saveDraftValues = [];
-  @track picklistOptions = [];
+  @track data = [];
+  @track draftValues = [];
+  @track casesData;
+  @track pickListOptions;
 
   @track isLoaded = false;
 
   @wire(getObjectInfo, { objectApiName: CASE_OBJECT })
-  caseObjectMetadata;
+  objectInfo;
 
   @wire(getPicklistValues, {
-    recordTypeId: "$caseObjectMetadata.data.defaultRecordTypeId",
-    fieldApiName: CASE_STATUS_FIELD
+    recordTypeId: "$objectInfo.data.defaultRecordTypeId",
+    fieldApiName: STATUS_FIELD
   })
-  сasesStatusPicklist({ data, error }) {
-    console.log(data);
-    console.log(error);
+
+  сasesStatusPicklist({ error, data }) {
     if (data) {
-      this.picklistOptions = data.values;
-      console.log(1111111111111);
-      console.log(this.picklistOptions);
-      console.log(data.values);
+      this.pickListOptions = data.values;
     } else if (error) {
-      console.log("error");
+      console.log(error);
     }
   }
 
-  @wire(getUserCases, {picklist: "$picklistOptions" })
+  @wire(getUserCases, {pickList: '$pickListOptions' })
   casesData(result) {
-    console.log(this.picklistOptions);
-    console.log("asasasasasasasasa");
+this.casesData = result;
     if (result.data) {
-      this.cases = JSON.parse(JSON.stringify(result.data));
-      console.log(this.cases);
-      console.log("___________________");
-      
-      this.cases.forEach((element) => {
-        element.picklistOptions = this.picklistOptions;
+      this.data = JSON.parse(JSON.stringify(result.data));
+      this.data.forEach(element => {
+        element.pickListOptions = this.pickListOptions;
       });
-      console.log("_________________");
-      console.log(this.cases);
-      this.picklistOptions.forEach((a) => console.log(a));
-      this.cases.forEach(
+      this.data.forEach(
         (item) =>
           (item["CaseUrl"] = "/lightning/r/Case/" + item["Id"] + "/view")
       );
-      this.cases.forEach(
+      this.data.forEach(
         (item) => (item["Assignee"] = item["Owner"]["Username"])
       );
       this.isLoaded = true;
@@ -100,7 +91,6 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
       const fields = JSON.parse(JSON.stringify(draft));
       return { fields };
     });
-    console.log(recordInputs);
     this.isLoaded = true;
     Promise.all(recordInputs.map((recordInput) => updateRecord(recordInput)))
       .then((res) => {
@@ -114,7 +104,7 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
         return this.refresh();
       })
       .catch((error) => {
-        this.ShowToast("Error", "Fatal error!", "error", "dismissable");
+        this.ShowToast("Error", "FATAL ERROR!", "error", "dismissable");
       })
       .finally(() => {
         this.saveDraftValues = [];
@@ -140,6 +130,8 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
   }
 
   refresh() {
-    refreshApex(this.cases);
+    refreshApex(this.casesData);
   }
+
+  
 }
