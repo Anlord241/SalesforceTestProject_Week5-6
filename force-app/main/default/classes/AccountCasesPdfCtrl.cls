@@ -10,7 +10,7 @@ public without sharing class AccountCasesPdfCtrl {
         Priority,
         Origin
       FROM Case
-      WHERE CreatedDate = LAST_WEEK
+      WHERE CreatedDate = LAST_MONTH
       ORDER BY Account.Id ASC
     ];
     return toReturn;
