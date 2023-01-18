@@ -11,9 +11,8 @@ import PRIORITY_FIELD from "@salesforce/schema/Case.Priority";
 import ORIGIN_FIELD from "@salesforce/schema/Case.Origin";
 
 const COLUMNS = [
- {
+  {
     label: "Case Number",
-    editable: true,
     fieldName: "CaseUrl",
     type: "url",
     typeAttributes: {
@@ -22,23 +21,22 @@ const COLUMNS = [
       }
     }
   },
-  { label: "Assignee", fieldName: "Assignee", editable: true },
+  { label: "Assignee", fieldName: "Assignee"},
   {
-    label: 'Status',
+    label: "Status",
     editable: true,
     fieldName: STATUS_FIELD.fieldApiName,
     wrapText: true,
-    type: 'picklistColumnType',
+    type: "picklistColumnType",
     typeAttributes: {
-      options: { fieldName: 'pickListOptions'},
+      options: { fieldName: "pickListOptions" },
       value: { fieldName: STATUS_FIELD.fieldApiName },
       placeholder: "Choose Status",
-      context: { fieldName: 'Id' }
+      context: { fieldName: "Id" }
     }
   },
-  { label: "Priority", fieldName: PRIORITY_FIELD.fieldApiName, editable: true },
-  { label: "Origin", fieldName: ORIGIN_FIELD.fieldApiName, editable: true }
-
+  { label: "Priority", fieldName: PRIORITY_FIELD.fieldApiName},
+  { label: "Origin", fieldName: ORIGIN_FIELD.fieldApiName}
 ];
 
 export default class ServiceCaseQueueFiltered extends LightningElement {
@@ -57,7 +55,6 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
     recordTypeId: "$objectInfo.data.defaultRecordTypeId",
     fieldApiName: STATUS_FIELD
   })
-
   сasesStatusPicklist({ error, data }) {
     if (data) {
       this.pickListOptions = data.values;
@@ -66,12 +63,12 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
     }
   }
 
-  @wire(getUserCases, {pickList: '$pickListOptions' })
+  @wire(getUserCases, { pickList: "$pickListOptions" })
   casesData(result) {
-this.casesData = result;
+    this.casesData = result;
     if (result.data) {
       this.data = JSON.parse(JSON.stringify(result.data));
-      this.data.forEach(element => {
+      this.data.forEach((element) => {
         element.pickListOptions = this.pickListOptions;
       });
       this.data.forEach(
@@ -132,6 +129,4 @@ this.casesData = result;
   refresh() {
     refreshApex(this.casesData);
   }
-
-  
 }
