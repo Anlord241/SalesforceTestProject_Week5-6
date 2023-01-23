@@ -12,6 +12,10 @@ import ORIGIN_FIELD from "@salesforce/schema/Case.Origin";
 
 const COLUMNS = [
   {
+    label: "",
+    fieldName: "Index"
+  },
+  {
     label: "Case Number",
     fieldName: "CaseUrl",
     type: "url",
@@ -21,12 +25,10 @@ const COLUMNS = [
       }
     }
   },
-  { label: "Assignee", fieldName: "Assignee"},
+  { label: "Assignee", fieldName: "Assignee" },
   {
     label: "Status",
-    editable: true,
     fieldName: STATUS_FIELD.fieldApiName,
-    wrapText: true,
     type: "picklistColumnType",
     typeAttributes: {
       options: { fieldName: "pickListOptions" },
@@ -35,14 +37,14 @@ const COLUMNS = [
       context: { fieldName: "Id" }
     }
   },
-  { label: "Priority", fieldName: PRIORITY_FIELD.fieldApiName},
-  { label: "Origin", fieldName: ORIGIN_FIELD.fieldApiName}
+  { label: "Priority", fieldName: PRIORITY_FIELD.fieldApiName, editable: true },
+  { label: "Origin", fieldName: ORIGIN_FIELD.fieldApiName }
 ];
 
 export default class ServiceCaseQueueFiltered extends LightningElement {
   columns = COLUMNS;
   @track data = [];
-  @track draftValues = [];
+  draftValues;
   @track casesData;
   @track pickListOptions;
 
@@ -65,16 +67,20 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
 
   @wire(getUserCases, { pickList: "$pickListOptions" })
   casesData(result) {
+    this.draftValues = new Map();
     this.casesData = result;
     if (result.data) {
       this.data = JSON.parse(JSON.stringify(result.data));
       this.data.forEach((element) => {
         element.pickListOptions = this.pickListOptions;
       });
+      this.data.forEach((item) => this.draftValues.set(item.Id, item.Status));
       this.data.forEach(
         (item) =>
           (item["CaseUrl"] = "/lightning/r/Case/" + item["Id"] + "/view")
       );
+      let index = 1;
+      this.data.forEach((item) => (item["Index"] = index++));
       this.data.forEach(
         (item) => (item["Assignee"] = item["Owner"]["Username"])
       );
@@ -82,12 +88,21 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
     }
   }
 
+  handleComboboxChange(event) {
+    event.target.parentElement.classList.add("value-changed");
+    this.draftValues.set(event.target.uniqueKey, event.detail.value);
+  }
+
   handleSave(event) {
-    this.saveDraftValues = event.detail.draftValues;
-    const recordInputs = event.detail.draftValues.slice().map((draft) => {
-      const fields = JSON.parse(JSON.stringify(draft));
+    let recordInputs = this.data.slice().map((draft) => {
+      let fields = JSON.parse(JSON.stringify(draft, ["Id", "Status"]));
       return { fields };
     });
+    recordInputs.forEach(
+      (item) =>
+        (item["fields"]["Status"] = this.draftValues.get(item["fields"]["Id"]))
+    );
+
     this.isLoaded = true;
     Promise.all(recordInputs.map((recordInput) => updateRecord(recordInput)))
       .then((res) => {
@@ -97,11 +112,17 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
           "success",
           "dismissable"
         );
-        this.saveDraftValues = [];
+
         return this.refresh();
       })
       .catch((error) => {
-        this.ShowToast("Error", "FATAL ERROR!", "error", "dismissable");
+        console.log(error);
+        this.ShowToast(
+          "FATAL ERROR!!!",
+          error.body.output.errors[0].message,
+          "error",
+          "dismissable"
+        );
       })
       .finally(() => {
         this.saveDraftValues = [];
@@ -126,7 +147,8 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
     }, 100);
   }
 
-  refresh() {
+  async refresh() {
+    this.draftValues = new Map();
     refreshApex(this.casesData);
   }
 }

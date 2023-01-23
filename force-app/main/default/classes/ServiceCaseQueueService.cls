@@ -14,7 +14,7 @@ public with sharing class ServiceCaseQueueService {
       FROM Case
       WHERE OwnerId = :currentUserId OR CreatedById = :currentUserId
       ORDER BY Priority ASC, CreatedDate DESC, OwnerId DESC
-      LIMIT 25
+      LIMIT 5
     ];
   }
 }

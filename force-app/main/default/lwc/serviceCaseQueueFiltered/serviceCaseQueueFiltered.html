@@ -7,18 +7,71 @@
       title="refresh"
       slot="actions"
     ></lightning-icon>
-    <template if:true={isLoaded}>
+
+    <!--
+        <template if:true={isLoaded}>
       <c-custom-types-datatable
-      key-field="Id"
-      data={data} 
-      columns={columns} 
-      draft-values={draftValues} 
-      onsave={handleSave}
-      oncancel={handleCancel}
-      hide-checkbox-column
+        key-field="Id"
+        data={data}
+        columns={columns}
+        draft-values={draftValues}
+        onsave={handleSave}
+        hide-checkbox-column
       >
       </c-custom-types-datatable>
     </template>
+  -->
+  
+    <template if:true={isLoaded}>
+      <table
+        class="slds-table slds-table_bordered slds-table_cell-buffer slds-var-m-bottom_large"
+      >
+        <thead>
+          <tr class="slds-text-title_caps">
+            <template for:each={columns} for:item="column">
+              <th key={column.fieldName}>
+                <div class="slds-truncate">{column.label}</div>
+              </th>
+            </template>
+          </tr>
+        </thead>
+        <tbody>
+          <template if:true={isLoaded} for:each={data} for:item="item">
+            <tr key={item.Id}>
+              <td>{item.Index}</td>
+              <td>
+                <lightning-formatted-url
+                  value={item.CaseUrl}
+                  target="_blank"
+                  label={item.CaseNumber}
+                ></lightning-formatted-url>
+              </td>
+              <td>{item.Assignee}</td>
+              <td>
+                <lightning-combobox
+                  name="picklist"
+                  unique-key={item.Id}
+                  onselect={handleComboboxSelection}
+                  label="Status"
+                  onchange={handleComboboxChange}
+                  value={item.Status}
+                  data-inputable="true"
+                  placeholder="Choose Status"
+                  options={pickListOptions}
+                  variant="label-hidden"
+                  dropdown-alignment="auto"
+                >
+                </lightning-combobox>
+              </td>
+              <td>{item.Priority}</td>
+              <td>{item.Origin}</td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+          <lightning-button variant="brand" label="Submit" class="slds-align_absolute-center" onclick={handleSave}></lightning-button>
+    </template>
+
     <div if:false={isLoaded}>
       <lightning-spinner alternative-text="Loading..."> </lightning-spinner>
     </div>
