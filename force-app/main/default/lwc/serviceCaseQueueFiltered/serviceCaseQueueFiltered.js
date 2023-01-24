@@ -9,6 +9,13 @@ import CASE_OBJECT from "@salesforce/schema/Case";
 import STATUS_FIELD from "@salesforce/schema/Case.Status";
 import PRIORITY_FIELD from "@salesforce/schema/Case.Priority";
 import ORIGIN_FIELD from "@salesforce/schema/Case.Origin";
+import {
+  subscribe,
+  unsubscribe,
+  onError,
+  setDebugFlag,
+  isEmpEnabled
+} from "lightning/empApi";
 
 const COLUMNS = [
   {
@@ -42,9 +49,31 @@ const COLUMNS = [
 ];
 
 export default class ServiceCaseQueueFiltered extends LightningElement {
+  channelName = "/event/Case_update__e";
+
+  connectedCallback() {
+    const update = this.refreshPage;
+
+    subscribe(this.channelName, -1, this.refreshPage).then((response) => {
+      console.log(
+        "Subscription request sent to: ",
+        JSON.stringify(response.channel)
+      );
+    });
+    this.registerErrorListener();
+  }
+  registerErrorListener() {
+    onError((error) => {
+      console.log("Received error from server: ", JSON.stringify(error));
+    });
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
   columns = COLUMNS;
   @track data = [];
   draftValues;
+
   @track casesData;
   @track pickListOptions;
 
@@ -113,7 +142,7 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
           "dismissable"
         );
 
-        return this.refresh();
+        return this.refreshPage();
       })
       .catch((error) => {
         console.log(error);
@@ -140,14 +169,18 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
   }
 
   refreshPage() {
+    console.log("hi2");
     this.isLoaded = false;
+    refreshApex(this.casesData);
+    refreshApex(this.data);
+
     setTimeout(() => {
       this.refresh();
       this.isLoaded = true;
     }, 100);
   }
 
-  async refresh() {
+  refresh() {
     this.draftValues = new Map();
     refreshApex(this.casesData);
   }
