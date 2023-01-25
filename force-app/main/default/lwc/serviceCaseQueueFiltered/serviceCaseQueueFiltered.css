@@ -4,3 +4,33 @@ background-color: lightyellow;
 .value-changed :hover{
 background-color: lightyellow;
 }
+
+.delete-case {
+    animation-duration: 1s;
+    animation-name: hidecase;
+  }
+  
+  @keyframes hidecase {
+    from {
+      opacity: 1;
+    }
+  
+    to {
+opacity: 0;
+    }
+  }
+
+  .insert-case {
+    animation-duration: 1s;
+    animation-name: showcase;
+  }
+  
+  @keyframes showcase {
+    from {
+        background-color: lightgreen;
+
+    }
+    to {
+        background-color: white;
+    }
+  }

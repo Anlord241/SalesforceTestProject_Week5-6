@@ -25,6 +25,7 @@
     <template if:true={isLoaded}>
       <table
         class="slds-table slds-table_bordered slds-table_cell-buffer slds-var-m-bottom_large"
+        id="cases-table-week-6"
       >
         <thead>
           <tr class="slds-text-title_caps">
@@ -37,7 +38,7 @@
         </thead>
         <tbody>
           <template if:true={isLoaded} for:each={data} for:item="item">
-            <tr key={item.Id}>
+            <tr key={item.Id} data-id={item.Id}>
               <td>{item.Index}</td>
               <td>
                 <lightning-formatted-url

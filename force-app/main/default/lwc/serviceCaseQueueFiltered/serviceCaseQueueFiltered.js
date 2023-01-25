@@ -52,9 +52,7 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
   channelName = "/event/Case_update__e";
 
   connectedCallback() {
-    const update = this.refreshPage;
-
-    subscribe(this.channelName, -1, this.refreshPage).then((response) => {
+    subscribe(this.channelName, -1, (message) => this.handleMessage(message)).then((response) => {
       console.log(
         "Subscription request sent to: ",
         JSON.stringify(response.channel)
@@ -68,6 +66,35 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
     });
   }
 
+  handleMessage(message) {
+    let caseUpdate = message.data.payload;
+let caseId = caseUpdate.Record_Id__c;
+
+    console.log(caseId);
+    if (caseUpdate.Action__c === 'DELETE') {
+      console.log('DELETE')
+      let row = this.template.querySelector(`[data-id="${caseId}"]`);
+      row.classList.add('delete-case');
+      setTimeout(() => {
+        this.refreshPage();
+        this.isLoaded = true;
+      }, 100);
+    }
+    if (caseUpdate.Action__c === 'INSERT') {
+      console.log('INSERT')
+      let row;
+      Promise.all([refreshApex(this.casesData)])
+      .then((res) => {
+          row = this.template.querySelector(`[data-id="${caseId}"]`);
+          row.classList.add('insert-case');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+    refreshApex(this.casesData);
+}
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   columns = COLUMNS;
@@ -76,6 +103,7 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
 
   @track casesData;
   @track pickListOptions;
+  @track pickListData;
 
   @track isLoaded = false;
 
@@ -88,6 +116,7 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
   })
   сasesStatusPicklist({ error, data }) {
     if (data) {
+      this.pickListData = data;
       this.pickListOptions = data.values;
     } else if (error) {
       console.log(error);
@@ -168,20 +197,18 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
     this.dispatchEvent(evt);
   }
 
-  refreshPage() {
-    console.log("hi2");
+  async refreshPage() {
     this.isLoaded = false;
-    refreshApex(this.casesData);
-    refreshApex(this.data);
-
+    this.draftValues = new Map();
     setTimeout(() => {
       this.refresh();
       this.isLoaded = true;
     }, 100);
   }
 
-  refresh() {
+  async refresh() {
     this.draftValues = new Map();
+    refreshApex(this.pickListData);
     refreshApex(this.casesData);
   }
 }
