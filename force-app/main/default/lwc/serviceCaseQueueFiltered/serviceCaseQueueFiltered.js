@@ -52,7 +52,9 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
   channelName = "/event/Case_update__e";
 
   connectedCallback() {
-    subscribe(this.channelName, -1, (message) => this.handleMessage(message)).then((response) => {
+    subscribe(this.channelName, -1, (message) =>
+      this.handleMessage(message)
+    ).then((response) => {
       console.log(
         "Subscription request sent to: ",
         JSON.stringify(response.channel)
@@ -68,32 +70,32 @@ export default class ServiceCaseQueueFiltered extends LightningElement {
 
   handleMessage(message) {
     let caseUpdate = message.data.payload;
-let caseId = caseUpdate.Record_Id__c;
+    let caseId = caseUpdate.Record_Id__c;
 
     console.log(caseId);
-    if (caseUpdate.Action__c === 'DELETE') {
-      console.log('DELETE')
+    if (caseUpdate.Action__c === "DELETE") {
+      console.log("DELETE");
       let row = this.template.querySelector(`[data-id="${caseId}"]`);
-      row.classList.add('delete-case');
+      row.classList.add("delete-case");
       setTimeout(() => {
         this.refreshPage();
         this.isLoaded = true;
       }, 100);
     }
-    if (caseUpdate.Action__c === 'INSERT') {
-      console.log('INSERT')
+    if (caseUpdate.Action__c === "INSERT") {
+      console.log("INSERT");
       let row;
       Promise.all([refreshApex(this.casesData)])
-      .then((res) => {
+        .then((res) => {
           row = this.template.querySelector(`[data-id="${caseId}"]`);
-          row.classList.add('insert-case');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+          row.classList.add("insert-case");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
     refreshApex(this.casesData);
-}
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
