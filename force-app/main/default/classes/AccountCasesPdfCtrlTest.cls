@@ -7,9 +7,8 @@ private class AccountCasesPdfCtrlTest {
     insert testCase;
     Test.setCreatedDate(
       testCase.Id,
-      Date.today().addDays(-NUMBER_OF_DAYS_IN_WEEK)
+      System.today().toStartOfWeek().addDays(-2)
     );
-
     Test.startTest();
     List<Case> result = new AccountCasesPdfCtrl().getAccountCasesPrevWeek();
     Test.stopTest();
