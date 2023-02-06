@@ -1,6 +1,7 @@
 @isTest
 private class AccountCasesPdfCtrlTest {
   private static final Integer NUMBER_OF_DAYS_IN_WEEK = 7;
+  
   @isTest
   static void getAccountCasesPrevWeekTestOneResult() {
     Case testCase = new Case();

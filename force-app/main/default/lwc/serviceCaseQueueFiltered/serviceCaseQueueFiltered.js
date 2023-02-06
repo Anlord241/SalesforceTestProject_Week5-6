@@ -9,13 +9,7 @@ import CASE_OBJECT from "@salesforce/schema/Case";
 import STATUS_FIELD from "@salesforce/schema/Case.Status";
 import PRIORITY_FIELD from "@salesforce/schema/Case.Priority";
 import ORIGIN_FIELD from "@salesforce/schema/Case.Origin";
-import {
-  subscribe,
-  unsubscribe,
-  onError,
-  setDebugFlag,
-  isEmpEnabled
-} from "lightning/empApi";
+import { subscribe, onError } from "lightning/empApi";
 
 const COLUMNS = [
   {

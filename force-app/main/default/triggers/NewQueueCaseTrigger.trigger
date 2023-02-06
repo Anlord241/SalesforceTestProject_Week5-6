@@ -19,6 +19,7 @@ trigger NewQueueCaseTrigger on New_Queue_Case__e(after insert) {
       FROM CustomNotificationType
       WHERE DeveloperName = 'New_Case_Available'
     ];
+
     notification.setNotificationTypeId(type.id);
     notification.setTargetId(item.Case_Id__c);
     notification.send(new Set<String>{ '0052w00000BQwTiAAL' });
